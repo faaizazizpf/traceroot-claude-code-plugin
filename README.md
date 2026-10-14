@@ -40,6 +40,7 @@ Set the following environment variables (or add them to your shell profile):
 |---|---|---|
 | `TRACEROOT_API_KEY` | Yes | Your TraceRoot API key. Find it at [app.traceroot.ai](https://app.traceroot.ai) → Settings → API Keys. |
 | `TRACEROOT_HOST_URL` | No | TraceRoot ingest endpoint. Defaults to the hosted service. Set this only when self-hosting. |
+| `TRACEROOT_PLUGIN_CAPTURE_CONTENT` | No | Defaults to `true`. Set to `false` (or `0`, `no`, `off`) to send metadata only: no prompts, replies, thinking, or tool inputs/outputs. |
 
 Example (add to `~/.zshrc` or `~/.bashrc`):
 
@@ -50,3 +51,18 @@ export TRACEROOT_API_KEY="tr-..."
 ```
 
 Restart Claude Code (or open a new terminal session) after setting the variables.
+
+---
+
+## Privacy
+
+When `TRACEROOT_API_KEY` is set, the plugin sends to `TRACEROOT_HOST_URL`:
+prompts, assistant replies, thinking, and tool inputs/outputs (each truncated to
+`TRACEROOT_PLUGIN_MAX_CHARS`, default 20000), plus git repo/ref, model, token counts and timings.
+No redaction is applied.
+
+To send metadata only, set `TRACEROOT_PLUGIN_CAPTURE_CONTENT=false`. Model, token counts,
+timings, tool names, session id and git repo/ref are still sent; conversation content and
+tool error messages are not.
+
+If `TRACEROOT_API_KEY` is not set, the plugin sends nothing.
