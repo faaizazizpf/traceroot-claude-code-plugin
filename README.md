@@ -120,7 +120,12 @@ If `TRACEROOT_API_KEY` is not set, nothing is sent.
 The installer places `claude.exe` in `%USERPROFILE%\.local\bin`, which may not be on your `PATH`.
 
 ```powershell
-[Environment]::SetEnvironmentVariable("Path", [Environment]::GetEnvironmentVariable("Path", "User") + ";$env:USERPROFILE\.local\bin", "User")
+$env:Path += ";C:\Users\PC\.local\bin"
+claude --version
 ```
 
+Permanent fix (one command)
+```powershell
+[Environment]::SetEnvironmentVariable("Path", [Environment]::GetEnvironmentVariable("Path", "User") + ";$env:USERPROFILE\.local\bin", "User")
+```
 Then fully close and reopen your terminal or IDE. To verify, run `claude --version`.
