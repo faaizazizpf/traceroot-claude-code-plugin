@@ -5,7 +5,6 @@ requires-python = ">=3.10"
 license = { text = "Apache-2.0" }
 dependencies = [
     "opentelemetry-api>=1.20",
-    "portalocker>=4.4.0",
 ]
 
 [dependency-groups]

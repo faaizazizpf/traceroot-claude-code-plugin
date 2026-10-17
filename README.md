@@ -61,7 +61,7 @@ Set the following environment variables (or add them to your shell profile). Eac
 | `TRACEROOT_API_KEY` | Yes | Your TraceRoot API key. Find it at [app.traceroot.ai](https://app.traceroot.ai) → Settings → API Keys. |
 | `TRACEROOT_HOST_URL` | No | TraceRoot ingest endpoint. Defaults to the hosted service. Set this only when self-hosting. |
 | `TRACEROOT_PLUGIN_MAX_CHARS` | No | Maximum characters captured per content field (prompts, replies, thinking, tool inputs/outputs). Defaults to `20000`. |
-| `TRACEROOT_PLUGIN_CAPTURE_CONTENT` | No | Set to `0`, `false`, `no`, or `off` to stop sending prompt/response content. Defaults to `true`. See [Privacy](#privacy). |
+| `TRACEROOT_PLUGIN_CAPTURE_CONTENT` | No | Defaults to on. Set to `false` to stop sending conversation content (`input.value`, `output.value`, `gen_ai.thinking`); timings, token counts and tool names are still sent. Any value other than `1`/`true`/`yes`/`on` turns capture off. |
 
 Example (add to `~/.zshrc` or `~/.bashrc`):
 
