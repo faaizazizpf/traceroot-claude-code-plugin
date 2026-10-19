@@ -90,15 +90,6 @@ wheels = [
 ]
 
 [[package]]
-name = "portalocker"
-version = "4.4.0"
-source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/81/cd/d2a23fc80c26f539ac77e7d61bd5e4af5d0b3a09a78ac4c716eead345129/portalocker-4.4.0.tar.gz", hash = "sha256:90c0df939d4ffba121f8e925bbf98ecea8b9381718666ab871a226938d2b63b2", size = 304906, upload-time = "2026-09-19T16:11:09.114Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/52/6c/07fa2775e87b6e241c2aca5cef79f65e450bc115de55f03cda6251f81690/portalocker-4.4.0-py3-none-any.whl", hash = "sha256:a8e99ea29bfb61766ee0b4008cbaf0651e8e050f7a2485ebf54316480e99226e", size = 129647, upload-time = "2026-09-19T16:11:07.377Z" },
-]
-
-[[package]]
 name = "pygments"
 version = "2.20.0"
 source = { registry = "https://pypi.org/simple" }
@@ -185,7 +176,6 @@ version = "0.1.0"
 source = { virtual = "." }
 dependencies = [
     { name = "opentelemetry-api" },
-    { name = "portalocker" },
 ]
 
 [package.dev-dependencies]
@@ -195,10 +185,7 @@ dev = [
 ]
 
 [package.metadata]
-requires-dist = [
-    { name = "opentelemetry-api", specifier = ">=1.20" },
-    { name = "portalocker", specifier = ">=4.4.0" },
-]
+requires-dist = [{ name = "opentelemetry-api", specifier = ">=1.20" }]
 
 [package.metadata.requires-dev]
 dev = [
