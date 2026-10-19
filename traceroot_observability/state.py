@@ -64,16 +64,21 @@ def session_lock(session_id: str):
     finally:
         fh.close()
 
+
 def _state_path(session_id: str) -> Path:
     return _dir(session_id) / "state.json"
 
 
 def load_state(session_id: str) -> SessionState:
-    """Load persisted state, or a fresh SessionState if none/invalid."""
+    """Load persisted state, or a fresh SessionState if none/invalid.
+
+    OSError covers a missing/unreadable file; ValueError covers bad JSON
+    (JSONDecodeError) and non-UTF-8 bytes (UnicodeDecodeError).
+    """
     path = _state_path(session_id)
     try:
         data = json.loads(path.read_text(encoding="utf-8"))
-    except (FileNotFoundError, json.JSONDecodeError, OSError):
+    except (OSError, ValueError):
         return SessionState()
     if not isinstance(data, dict):
         return SessionState()
