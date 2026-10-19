@@ -12,6 +12,15 @@ from traceroot_observability.transcript import Turn
 
 SECRET = "SECRET-PROMPT-xyz"
 CONTENT_KEYS = (spans.OI["INPUT"], spans.OI["OUTPUT"], "gen_ai.thinking")
+ENV = "TRACEROOT_PLUGIN_CAPTURE_CONTENT"
+OPT = "CLAUDE_PLUGIN_OPTION_TRACEROOT_PLUGIN_CAPTURE_CONTENT"
+
+
+@pytest.fixture(autouse=True)
+def _clean_env(monkeypatch):
+    """Isolate every test from the developer's shell / plugin options."""
+    monkeypatch.delenv(ENV, raising=False)
+    monkeypatch.delenv(OPT, raising=False)
 
 
 def _tracer():
@@ -38,20 +47,43 @@ def _turn(is_error=False):
 
 @pytest.mark.parametrize("val", ["false", "0", "no", "off", "FALSE"])
 def test_config_false_values(monkeypatch, val):
-    monkeypatch.setenv("TRACEROOT_PLUGIN_CAPTURE_CONTENT", val)
+    monkeypatch.setenv(ENV, val)
     assert load_config().capture_content is False
 
 
-@pytest.mark.parametrize("val", [None, "", "true", "1"])
+@pytest.mark.parametrize("val", ["disabled", "none", "n", "flase", "2", "enabled"])
+def test_config_unrecognised_values_fail_closed(monkeypatch, val):
+    monkeypatch.setenv(ENV, val)
+    assert load_config().capture_content is False
+
+
+@pytest.mark.parametrize("val", [None, "", "   ", "true", "1", "yes", "on", " TRUE "])
 def test_config_default_true(monkeypatch, val):
-    monkeypatch.delenv("TRACEROOT_PLUGIN_CAPTURE_CONTENT", raising=False)
     if val is not None:
-        monkeypatch.setenv("TRACEROOT_PLUGIN_CAPTURE_CONTENT", val)
+        monkeypatch.setenv(ENV, val)
     assert load_config().capture_content is True
 
 
-def test_content_captured_by_default(monkeypatch):
-    monkeypatch.delenv("TRACEROOT_PLUGIN_CAPTURE_CONTENT", raising=False)
+def test_plugin_option_true_does_not_override_env_false(monkeypatch):
+    monkeypatch.setenv(OPT, "true")
+    monkeypatch.setenv(ENV, "false")
+    assert load_config().capture_content is False
+
+
+def test_plugin_option_false_does_not_override_env_true(monkeypatch):
+    monkeypatch.setenv(OPT, "false")
+    monkeypatch.setenv(ENV, "true")
+    assert load_config().capture_content is False
+
+
+def test_plugin_option_alone_is_honoured(monkeypatch):
+    monkeypatch.setenv(OPT, "false")
+    assert load_config().capture_content is False
+    monkeypatch.setenv(OPT, "true")
+    assert load_config().capture_content is True
+
+
+def test_content_captured_by_default():
     tracer, exp = _tracer()
     spans.build_turn_spans(tracer, _turn(), "s", ("", ""), [], 20000)
     assert any(SECRET in str(v) for sp in exp.get_finished_spans() for v in sp.attributes.values())
@@ -74,7 +106,7 @@ def _assert_clean(exp):
 
 
 def test_turn_spans_scrubbed(monkeypatch):
-    monkeypatch.setenv("TRACEROOT_PLUGIN_CAPTURE_CONTENT", "false")
+    monkeypatch.setenv(ENV, "false")
     tracer, exp = _tracer()
     spans.build_turn_spans(tracer, _turn(is_error=True), "s", ("o/r", "main"), [], 20000)
     _assert_clean(exp)
@@ -84,7 +116,14 @@ def test_turn_spans_scrubbed(monkeypatch):
 
 
 def test_ask_spans_scrubbed(monkeypatch):
-    monkeypatch.setenv("TRACEROOT_PLUGIN_CAPTURE_CONTENT", "false")
+    monkeypatch.setenv(ENV, "false")
     tracer, exp = _tracer()
     spans.build_ask_spans(tracer, [_turn(is_error=True)], "s", ("o/r", "main"), [], 20000)
+    _assert_clean(exp)
+
+
+def test_spans_scrubbed_on_unrecognised_value(monkeypatch):
+    monkeypatch.setenv(ENV, "flase")
+    tracer, exp = _tracer()
+    spans.build_turn_spans(tracer, _turn(), "s", ("o/r", "main"), [], 20000)
     _assert_clean(exp)
